@@ -30,6 +30,10 @@ $app->bind("/api/forms/submit/:form", function($params) use($app) {
         if ($this->path("custom:forms/{$form}.php") && false===include($this->path("custom:forms/{$form}.php"))) {
             return false;
         }
+        
+        $options = array();
+        if (isset($formdata['email']) && filter_var($formdata['email'], FILTER_VALIDATE_EMAIL))
+            $options['reply_to'] = $formdata['email'];
 
         if (isset($frm["email"])) {
 
@@ -55,7 +59,7 @@ $app->bind("/api/forms/submit/:form", function($params) use($app) {
                     $body[] = (is_string($value) ? $value:json_encode($value))."\n<br>";
                 }
 
-                $this->mailer->mail($frm["email"], $this->param("__mailsubject", "New form data for: ".$form), implode("\n<br>", $body), $formdata);
+                $this->mailer->mail($frm["email"], $this->param("__mailsubject", "New form data for: ".$form), implode("\n<br>", $body), $options);
             }
         }
 
